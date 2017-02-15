@@ -28,6 +28,7 @@ grammar Latex::Grammer {
     }
 
     token TOP {
+        \n*
         [ <line> \n* ]*
     }
 }
@@ -61,29 +62,12 @@ class Latex::Action {
     }
 }
 
-# my $contents = "test-data/sample.tex".IO.slurp;
-my $contents = q:to/EOI/;
-\documentclass[a4j = true, titlepage, 10pt]{jsarticle}
+sub MAIN($filename!) {
+    my $contents = $filename.IO.slurp;
+    my $actions = Latex::Action;
+    my $match = Latex::Grammer.parse($contents, :$actions);
+    # say $match;
 
-hello latex!
-
-\begin{foo}
-  \begin{bar}
-    nested block test
-  \end{bar}
-
-  \lstinputlisting
-  [caption = Listing Caption, label = code:kadai2-3]
-  {../src/kadai2-3.c}
-
-  \clearpage
-\end{foo}
-
-EOI
-
-my $actions = Latex::Action;
-my $match = Latex::Grammer.parse($contents, :$actions);
-# say $match;
-
-my $json = $match.made;
-say to-json($json);
+    my $json = $match.made;
+    say to-json($json);
+}
