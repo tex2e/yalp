@@ -39,7 +39,7 @@ sample.tex
 ### Output
 
 ~~~
-% perl main.pl --pretty sample.tex
+% perl main.p6 --pretty sample.tex
 [
   {
     "command": "documentclass",
