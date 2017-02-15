@@ -44,13 +44,16 @@ class Latex::Action {
         make { text => $0.Str };
     }
     method command($/) {
+        my %options = %{};
+        for $<option> {
+            my $key =  .values[0].Str;
+            my $val = (.values[1] ?? .values[1].Str !! "");
+            %options.push: ( $key => $val );
+        }
+
         make {
             command => $<name>.Str,
-            opts => $<option>».&{
-                my $key =  $_.values[0].Str;
-                my $val = ($_.values[1] ?? $_.values[1].Str !! "");
-                { $key => $val }
-            },
+            opts => %options,
             args => ($<val> ?? $<val>.Str !! "")
         };
     }
