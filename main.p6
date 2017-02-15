@@ -62,12 +62,12 @@ class Latex::Action {
     }
 }
 
-sub MAIN($filename!) {
+sub MAIN($filename!, Bool :$pretty) {
     my $contents = $filename.IO.slurp;
     my $actions = Latex::Action;
     my $match = Latex::Grammer.parse($contents, :$actions);
     # say $match;
 
     my $json = $match.made;
-    say to-json($json);
+    say to-json($json, :pretty($pretty));
 }
