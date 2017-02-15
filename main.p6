@@ -21,11 +21,14 @@ grammar Latex::Grammer {
     }
     rule command {
         '\\' <name>
-        [ '[' [ <option> ','?: ]*: ']' ]?:
-        [ '{' [ <option> ','?: ]*: '}' ]?:
+        [ '[' [ <option>   ','?: ]*: ']' ]?:
+        [ '{' [ <argument> ','?: ]*: '}' ]?:
     }
     rule option {
         <name> [ '=' <val> ]?
+    }
+    rule argument {
+        $<name>=[ <-[ , \} \= ]>+: ] [ '=' <val> ]?
     }
 
     token TOP {
@@ -51,10 +54,16 @@ class Latex::Action {
             my $val = (.values[1] ?? .values[1].Str !! "");
             %options.push: ( $key => $val );
         }
+        my %args = %{};
+        for $<argument> {
+            my $key =  .values[0].Str;
+            my $val = (.values[1] ?? .values[1].Str !! "");
+            %args.push: ( $key => $val );
+        }
         make {
             command => $<name>.Str,
             opts => %options,
-            args => ($<val> ?? $<val>.Str !! "")
+            args => %args
         };
     }
     method block($/) {
