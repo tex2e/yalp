@@ -11,5 +11,5 @@ yalp, Yet Another Latex Parser, is a parser for latex.
 
 ## Goal
 
-This project aims to parse latex file and generate format string like JSON,
-and we finally use it to test for checking latex documentation quality.
+This project aims to parse Latex file and generate format string like JSON,
+and we finally use it to test for checking documentation quality written in Latex.
