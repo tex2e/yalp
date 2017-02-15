@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl6
+#!/usr/bin/env perl6
 #
 # yall -- yet another latex lexer
 #
@@ -15,13 +15,14 @@ grammar Latex::Grammer {
     token text { ( <-[\n]>+: ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
+        [ '[' [ <option> ','?: ]*: ']' ]?:
         [ <line> ]*
         '\end{' $<blockname> '}'
     }
     rule command {
         '\\' <name>
         [ '[' [ <option> ','?: ]*: ']' ]?:
-        [ '{' $<val>=[ <-[ \} ]>*: ] '}' ]?:
+        [ '{' [ <option> ','?: ]*: '}' ]?:
     }
     rule option {
         <name> [ '=' <val> ]?
@@ -50,7 +51,6 @@ class Latex::Action {
             my $val = (.values[1] ?? .values[1].Str !! "");
             %options.push: ( $key => $val );
         }
-
         make {
             command => $<name>.Str,
             opts => %options,
@@ -58,8 +58,15 @@ class Latex::Action {
         };
     }
     method block($/) {
+        my %options = %{};
+        for $<option> {
+            my $key =  .values[0].Str;
+            my $val = (.values[1] ?? .values[1].Str !! "");
+            %options.push: ( $key => $val );
+        }
         make {
             block => $<name>.Str,
+            opts => %options,
             contents => $<line>».ast
         };
     }
