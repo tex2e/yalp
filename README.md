@@ -55,8 +55,8 @@ sample.tex
   {
     "command": "lstset",
     "args": {
-      "numbers ": "left ",
-      "language ": "c"
+      "language": "c",
+      "numbers": "left"
     },
     "opts": {
 
@@ -74,9 +74,7 @@ sample.tex
           "htbp": ""
         },
         "contents": [
-          {
-            "text": "nested block test"
-          }
+          "nested block test"
         ]
       },
       {
