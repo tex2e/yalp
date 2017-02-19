@@ -5,7 +5,7 @@ use Test;
 use lib './lib';
 use Latex::YALP;
 
-plan 2;
+plan 3;
 
 given 'basic block' {
     my $input = q:to/EOS/;
@@ -45,6 +45,29 @@ given 'nested block' {
     @expected.push: {
         block => "document",
         opts => {},
+        contents => @nested
+    }
+
+    is-deeply Latex::YALP.parse($input), @expected, $_;
+}
+
+given 'block with opts' {
+    my $input = q:to/EOS/;
+    \begin{table}[htbp]
+        \centering
+    \end{table}
+    EOS
+
+    my @nested = [];
+    @nested.push: {
+        command => "centering",
+        args => {},
+        opts => {}
+    }
+    my @expected = [];
+    @expected.push: {
+        block => "table",
+        opts => { "htbp" => "" },
         contents => @nested
     }
 
