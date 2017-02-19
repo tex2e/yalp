@@ -34,6 +34,8 @@ sample.tex
   \lstinputlisting
   [caption = Listing Caption, label = code:kadai2-3]
   {../src/kadai2-3.c}
+
+  \clearpage
 \end{foo}
 ~~~
 
@@ -58,16 +60,10 @@ sample.tex
     "args": {
       "language": "c",
       "numbers": "left"
-    },
-    "opts": {
-
     }
   },
   {
     "block": "foo",
-    "opts": {
-
-    },
     "contents": [
       {
         "block": "bar",
@@ -87,6 +83,9 @@ sample.tex
           "label": "code:kadai2-3",
           "caption": "Listing Caption"
         }
+      },
+      {
+        "command": "clearpage"
       }
     ]
   }
