@@ -15,14 +15,14 @@ grammar Latex::Grammer {
     token text { ( <-[\n]>+: ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
-        [ '[' [ <option> ','?: ]*: ']' ]?:
+        [ '[' <option>*: %% ',' ']' ]?:
         [ <line> ]*
         '\end{' $<blockname> '}'
     }
     rule command {
         '\\' <name>
-        [ '[' [ <option>   ','?: ]*: ']' ]?:
-        [ '{' [ <argument> ','?: ]*: '}' ]?:
+        [ '[' <option>*:   %% ',' ']' ]?:
+        [ '{' <argument>*: %% ',' '}' ]?:
     }
     rule option {
         (<name>) [ '=' (<val>) ]?
