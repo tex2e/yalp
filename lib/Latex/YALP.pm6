@@ -15,19 +15,30 @@ grammar Latex::Grammer {
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
         [ '[' <option>*: %% ',' ']' ]?:
+        [ '{' <argument>*: %% ',' '}' ]?:
         [ <line> ]*
         '\end{' $<blockname> '}'
     }
     rule command {
         '\\' <name>
-        [ '[' <option>*:   %% ',' ']' ]?:
-        [ '{' <argument>*: %% ',' '}' ]?:
+        [ '[' <option>*: %% ',' ']' ]?:
+        [
+            '{' <argument>*: %% ',' '}'
+            [ $<option2>=[ <bracket> ] ]?:
+            [ $<argument2>=[ <curlybrace> ] ]?:
+        ]?:
     }
     rule option {
         <name> [ '=' <val> ]?
     }
     rule argument {
         $<name>=[ <-[ , \} \= ]>+: ] [ '=' <val> ]?
+    }
+    rule bracket {
+        '[' [ <-[ \[ \] ]>+: || <bracket> ]+ ']'
+    }
+    rule curlybrace {
+        '{' [ <-[ \{ \} ]>+: || <curlybrace> ]+ '}'
     }
 
     token TOP {
@@ -47,21 +58,25 @@ class Latex::Action {
         make $0.Str.trim;
     }
     method command($/) {
-        my %options = self!convert_kvpair_to_hash($<option>.list);
-        my %args    = self!convert_kvpair_to_hash($<argument>.list);
-        make {
-            command => $<name>.Str.trim,
-            opts => %options,
-            args => %args
-        };
+        my %options  = self!convert_kvpair_to_hash($<option>.list);
+        my %args     = self!convert_kvpair_to_hash($<argument>.list);
+
+        my %node = %{ command => $<name>.Str.trim };
+        %node<opts>  = %options if %options.elems > 0;
+        %node<args>  = %args    if %args.elems > 0;
+        %node<opts2> = $<option2>.trim.substr(1, *-1)   if $<option2>:exists;
+        %node<args2> = $<argument2>.trim.substr(1, *-1) if $<argument2>:exists;
+        make %node;
     }
     method block($/) {
         my %options = self!convert_kvpair_to_hash($<option>.list);
-        make {
-            block => $<name>.Str.trim,
-            opts => %options,
-            contents => $<line>».ast
-        };
+        my %args    = self!convert_kvpair_to_hash($<argument>.list);
+
+        my %node = %{ block => $<name>.Str.trim };
+        %node<opts> = %options if %options.elems > 0;
+        %node<args> = %args    if %args.elems > 0;
+        %node<contents> = $<line>».ast;
+        make %node;
     }
 
     method !convert_kvpair_to_hash(@kvlist) {

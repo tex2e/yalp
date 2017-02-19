@@ -17,7 +17,6 @@ given 'basic block' {
     my @expected = [];
     @expected.push: {
         block => "document",
-        opts => {},
         contents => [
             'hello, LaTeX.'
         ]
@@ -38,13 +37,11 @@ given 'nested block' {
     my @nested = [];
     @nested.push: {
         block => "quote",
-        opts => {},
         contents => [ 'hello, LaTeX.' ]
     }
     my @expected = [];
     @expected.push: {
         block => "document",
-        opts => {},
         contents => @nested
     }
 
@@ -61,8 +58,6 @@ given 'block with opts' {
     my @nested = [];
     @nested.push: {
         command => "centering",
-        args => {},
-        opts => {}
     }
     my @expected = [];
     @expected.push: {

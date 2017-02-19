@@ -16,7 +16,6 @@ given 'basic command' {
     @expected.push: {
         command => "documentclass",
         args => { jsarticle => "" },
-        opts => {}
     }
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
@@ -30,8 +29,6 @@ given 'command without {}' {
     my @expected = [];
     @expected.push: {
         command => "clearpage",
-        args => {},
-        opts => {}
     }
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
@@ -46,7 +43,6 @@ given 'command with many args' {
     @expected.push: {
         command => "usepackage",
         args => { amsmath => "", amssymb => "", graphicx => "" },
-        opts => {}
     }
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
@@ -63,7 +59,6 @@ given 'command with many args, key-value pairs' {
     @expected.push: {
         command => "lstset",
         args => { language => "c", numbers => "left", breaklines => "true" },
-        opts => {}
     }
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
@@ -96,7 +91,6 @@ given 'command in text' {
     @expected.push: {
         command => "ref",
         args => { "fig:test-result" => "" },
-        opts => {}
     }
     @expected.push: "indicates...";
 
