@@ -25,10 +25,10 @@ grammar Latex::Grammer {
         [ '{' [ <argument> ','?: ]*: '}' ]?:
     }
     rule option {
-        <name> [ '=' <val> ]?
+        (<name>) [ '=' (<val>) ]?
     }
     rule argument {
-        $<name>=[ <-[ , \} \= ]>+: ] [ '=' <val> ]?
+        $<name>=( <-[ , \} \= ]>+: ) [ '=' (<val>) ]?
     }
 
     token TOP {
@@ -45,7 +45,7 @@ class Latex::Action {
         make $/.values[0].ast;
     }
     method text($/) {
-        make { text => $0.Str };
+        make $0.Str;
     }
     method command($/) {
         my %options = %{};
