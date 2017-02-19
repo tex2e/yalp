@@ -11,7 +11,7 @@ grammar Latex::Grammer {
     token name { <[ \w _ \- ]>+: }
     token val  { <-[ \, \} \] ]>*: }
     token line { <block> || <command> || <text> }
-    token text { ( <-[\n]>+: ) }
+    token text { ( <-[\n \\]>+: || \\ ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
         [ '[' <option>*: %% ',' ']' ]?:
