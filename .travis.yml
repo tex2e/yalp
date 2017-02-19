@@ -9,9 +9,5 @@ perl6:
 #     - rakudobrew build-panda
 #     - panda installdeps .
 
-cache:
-  directories:
-    - $HOME/.rakudobrew
-
 script:
     - make test
