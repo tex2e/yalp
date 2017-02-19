@@ -10,4 +10,4 @@ perl6:
 #     - panda installdeps .
 
 script:
-    - make test
+    - make test ARGS=-v
