@@ -1,6 +1,9 @@
 
 # yalp
 
+[![Build Status](https://travis-ci.org/tex2e/yalp.svg?branch=master)](https://travis-ci.org/tex2e/yalp)
+
+
 yalp, Yet Another Latex Parser, is a parser for latex.
 
 
