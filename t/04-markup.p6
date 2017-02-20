@@ -5,7 +5,7 @@ use Test;
 use lib './lib';
 use Latex::YALP;
 
-plan 6;
+plan 7;
 
 given 'Mixed text and command' {
     my $input = q:to/EOS/;
@@ -123,6 +123,30 @@ given 'Text positioning' {
                 'Certificate',
             ],
         },
+    ];
+
+    is-deeply Latex::YALP.parse($input), @expected, $_;
+}
+
+given 'Font' {
+    my $input = q:to/EOS/;
+    This is \textsf{\textbf{sans serif family, boldface series, upright shape}}.
+    EOS
+
+    my @expected = [
+        'This is',
+        {
+            command => 'textsf',
+            contents => [
+                {
+                    command => 'textbf',
+                    contents => [
+                        'sans serif family, boldface series, upright shape'
+                    ]
+                },
+            ]
+        },
+        '.'
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
