@@ -10,8 +10,8 @@ unit module Latex::YALP;
 grammar Latex::Grammer {
     token name { <[ \w _ \- ]>+ }
     token val  { <-[ \, \} \] ]>* }
-    token line { <block> || <special_command> || <command> || <text> }
-    token text { ( <-[ \n \\ \{ \} ]>+ || <[ \{ \} ]> ) }
+    token line { <curlybrace> || <block> || <special_command> || <command> || <text> }
+    token text { ( <-[ \\ \{ \} ]>+ ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
         [ '[' <option>* %% ',' ']' ]?
@@ -20,14 +20,22 @@ grammar Latex::Grammer {
         '\end{' $<blockname> '}'
     }
     token special_command {
-        '\\' $<name>=[ 'text' <[ a .. z ]> ** 2 ] <|w>
+        '\\' $<name>=[ '\\' ]
+        [ '[' <option>* %% ',' ']' ]?
+        ||
+        '\\' $<name>=[
+            'text' <[ a .. z ]> ** 2
+            || 'title'
+            || 'author'
+            || 'date'
+        ] <|w>
         [ '{' [ <line> \n* ]*? '}' ]?
     }
     rule command {
         '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] ]> ] ]
-        [ '[' <option>* %% [ ',' \s* ] ']' ]?
+        [ '[' <option>* %% ',' ']' ]?
         [
-            '{' <argument>* %% [ ',' \s* ] '}'
+            '{' <argument>* %% ',' '}'
             [ $<option2>=[ <.bracket> ] ]?
             [ $<argument2>=[ <.curlybrace> ] ]?
         ]?
@@ -42,7 +50,7 @@ grammar Latex::Grammer {
         '[' [ <-[ \[ \] ]>+ || <.bracket> ]+ ']'
     }
     rule curlybrace {
-        '{' [ <-[ \{ \} ]>+ || <.curlybrace> ]+ '}'
+        '{' [ <line>+ || <curlybrace> ]+ '}'
     }
 
     token TOP {
@@ -64,8 +72,12 @@ class Latex::Action {
         make $0.Str.trim;
     }
     method special_command($/) {
+        my %options  = self!convert_kvpair_to_hash($<option>.list);
+
         my %node = %{ command => $<name>.Str.trim };
-        %node<contents> = $<line>».ast;
+        %node<opts> = %options if %options.elems > 0;
+        my @contents = $<line>».ast;
+        %node<contents> = @contents if @contents.elems > 0;
         make %node;
     }
     method command($/) {
@@ -88,6 +100,11 @@ class Latex::Action {
         %node<args> = %args    if %args.elems > 0;
         %node<contents> = $<line>».ast;
         make %node;
+    }
+    method curlybrace($/) {
+        make {
+            contents => $/.values.Array».ast
+        };
     }
 
     method !convert_kvpair_to_hash(@kvlist) {
