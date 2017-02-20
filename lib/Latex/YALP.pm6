@@ -8,42 +8,44 @@ use v6;
 unit module Latex::YALP;
 
 grammar Latex::Grammer {
-    token name { <[ \w _ \- ]>+: }
-    token val  { <-[ \, \} \] ]>*: }
+    token name { <[ \w _ \- ]>+ }
+    token val  { <-[ \, \} \] ]>* }
     token line { <block> || <command> || <text> }
-    token text { ( <-[\n \\]>+: || \\ ) }
+    token text { ( <-[\n \\]>+ ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
-        [ '[' <option>*: %% ',' ']' ]?:
-        [ '{' <argument>*: %% ',' '}' ]?:
-        [ <line> ]*
+        [ '[' <option>* %% ',' ']' ]?
+        [ '{' <argument>* %% ',' '}' ]?
+        [ <line> \n* ]*?
         '\end{' $<blockname> '}'
     }
-    rule command {
-        '\\' <name>
-        [ '[' <option>*: %% ',' ']' ]?:
+    token command {
+        '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] \’ ]> ] ] \s*
         [
-            '{' <argument>*: %% ',' '}'
-            [ $<option2>=[ <bracket> ] ]?:
-            [ $<argument2>=[ <curlybrace> ] ]?:
-        ]?:
+            [ '[' <option>* %% [ ',' \s* ] ']' ]? \s*
+            '{' <argument>* %% [ ',' \s* ] '}'
+            [ $<option2>=[ <bracket> ] ]?
+            [ $<argument2>=[ <curlybrace> ] ]?
+        ]?
     }
     rule option {
         <name> [ '=' <val> ]?
     }
     rule argument {
-        $<name>=[ <-[ , \} \= ]>+: ] [ '=' <val> ]?
+        $<name>=[ <-[ , \} \= ]>+ ] [ '=' <val> ]?
     }
     rule bracket {
-        '[' [ <-[ \[ \] ]>+: || <bracket> ]+ ']'
+        '[' [ <-[ \[ \] ]>+ || <bracket> ]+ ']'
     }
     rule curlybrace {
-        '{' [ <-[ \{ \} ]>+: || <curlybrace> ]+ '}'
+        '{' [ <-[ \{ \} ]>+ || <curlybrace> ]+ '}'
     }
 
     token TOP {
+        ^
         \n*
         [ <line> \n* ]*
+        $
     }
 }
 
