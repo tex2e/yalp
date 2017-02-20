@@ -5,9 +5,9 @@ use Test;
 use lib './lib';
 use Latex::YALP;
 
-plan 3;
+plan 5;
 
-given 'Title \title' {
+given '\title' {
     my $input = q:to/EOS/;
     \title{{ \Huge Main Title }~\\\\{ \LARGE Sub Title }}
     EOS
@@ -37,7 +37,7 @@ given 'Title \title' {
     is-deeply Latex::YALP.parse($input), @expected, $_;
 }
 
-given 'Title \author' {
+given '\author' {
     my $input = q:to/EOS/;
     \author{{ \Large Mako }}
     EOS
@@ -59,7 +59,41 @@ given 'Title \author' {
     is-deeply Latex::YALP.parse($input), @expected, $_;
 }
 
-given 'Title \date' {
+given '\author with 2 authors' {
+    my $input = q:to/EOS/;
+    \author{
+        Author 1\\\\
+        Address line 11\\\\
+        Address line 12
+        \and
+        Author 2\\\\
+        Address line 21\\\\
+        Address line 22}
+    EOS
+
+    my @expected = [
+        {
+            command => 'author',
+            contents => [
+                'Author 1',
+                { command => '\\' },
+                'Address line 11',
+                { command => '\\' },
+                'Address line 12',
+                { command => 'and' },
+                'Author 2',
+                { command => '\\' },
+                'Address line 21',
+                { command => '\\' },
+                'Address line 22',
+            ]
+        },
+    ];
+
+    is-deeply Latex::YALP.parse($input), @expected, $_;
+}
+
+given '\date' {
     my $input = q:to/EOS/;
     \date{\today}
     EOS
@@ -71,6 +105,18 @@ given 'Title \date' {
                 { command => 'today' },
             ]
         },
+    ];
+
+    is-deeply Latex::YALP.parse($input), @expected, $_;
+}
+
+given '\section* -- produces no number' {
+    my $input = q:to/EOS/;
+    \section*{Preface}
+    EOS
+
+    my @expected = [
+        { command => 'section*', args => { 'Preface' => '' } },
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;

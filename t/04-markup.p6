@@ -15,7 +15,7 @@ given 'Mixed text and command' {
 
     my @expected = [
         "This is my",
-        { command => "emph", args => { 'first' => "" } },
+        { command => "emph", contents => [ 'first' ] },
         "document prepared in",
         { command => "LaTeX" },
         ". I typed it\non",
