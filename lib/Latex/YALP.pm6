@@ -8,10 +8,11 @@ use v6;
 unit module Latex::YALP;
 
 grammar Latex::Grammer {
-    token name { <[ \w _ \- ]>+ }
+    token name { <[ \w _ ]>+ \*? }
     token val  { <-[ \, \} \] ]>* }
-    token line { <curlybrace> || <block> || <special_command> || <command> || <text> }
-    token text { ( <-[ \\ \{ \} ]>+ ) }
+    token line { <comment> || <curlybrace> || <block> || <special_command> || <command> || <text> }
+    token comment { '%' ( <-[ \n ]>* ) }
+    token text { ( <-[ \\ \{ \} \% ]>+ ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
         [ '[' <option>* %% ',' ']' ]?
@@ -28,6 +29,8 @@ grammar Latex::Grammer {
             || 'title'
             || 'author'
             || 'date'
+            || 'emph'
+            || 'caption'
         ] <|w>
         [ '{' [ <line> \n* ]*? '}' ]?
     }
@@ -67,6 +70,9 @@ class Latex::Action {
     }
     method line($/) {
         make $/.values[0].ast;
+    }
+    method comment($/) {
+        make { comment => $0.Str };
     }
     method text($/) {
         make $0.Str.trim;
