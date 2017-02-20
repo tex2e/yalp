@@ -20,16 +20,16 @@ grammar Latex::Grammer {
         '\end{' $<blockname> '}'
     }
     rule command {
-        '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] \’ ]> ] ]
+        '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] ]> ] ]
+        [ '[' <option>* %% [ ',' \s* ] ']' ]?
         [
-            [ '[' <option>* %% [ ',' \s* ] ']' ]?
             '{' <argument>* %% [ ',' \s* ] '}'
             [ $<option2>=[ <.bracket> ] ]?
             [ $<argument2>=[ <.curlybrace> ] ]?
         ]?
     }
     rule option {
-        <name> [ '=' <val> ]?
+        $<name>=[ <[ \w _ \- 0..9 . ]>+ ] [ '=' <val> ]?
     }
     rule argument {
         $<name>=[ <-[ , \} \= ]>+ ] [ '=' <val> ]?
