@@ -1,3 +1,3 @@
 
 test:
-	prove ${ARGS} --exec perl6 -r t --ext p6
+	prove ${ARGS} -j4 --exec perl6 -r t --ext p6
