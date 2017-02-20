@@ -5,7 +5,7 @@ use Test;
 use lib './lib';
 use Latex::YALP;
 
-plan 7;
+plan 8;
 
 given 'Mixed text and command' {
     my $input = q:to/EOS/;
@@ -146,6 +146,26 @@ given 'Font' {
                 },
             ]
         },
+        '.'
+    ];
+
+    is-deeply Latex::YALP.parse($input), @expected, $_;
+}
+
+given 'Size' {
+    my $input = q:to/EOS/;
+    This is {\bfseries\huge The \TeX nical Institute}.
+    EOS
+
+    my @expected = [
+        'This is',
+        '{',
+        { command => 'bfseries' },
+        { command => 'huge' },
+        'The',
+        { command => 'TeX' },
+        'nical Institute',
+        '}',
         '.'
     ];
 
