@@ -18,8 +18,7 @@ given 'Mixed text and command' {
         { command => "emph", args => { 'first' => "" } },
         "document prepared in",
         { command => "LaTeX" },
-        ". I typed it",
-        "on",
+        ". I typed it\non",
         { command => "today" },
         "."
     ];
@@ -36,8 +35,7 @@ given '\@ -- produce the extra space after the period' {
     my @expected = [
         "Carrots are good for your eyes, since they contain Vitamin A",
         { command => '@' },
-        ". Have",
-        "you ever seen a rabbit wearing glasses?"
+        ". Have\nyou ever seen a rabbit wearing glasses?"
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
@@ -159,14 +157,16 @@ given 'Size' {
 
     my @expected = [
         'This is',
-        '{',
-        { command => 'bfseries' },
-        { command => 'huge' },
-        'The',
-        { command => 'TeX' },
-        'nical Institute',
-        '}',
-        '.'
+        {
+            contents => [
+                { command => 'bfseries' },
+                { command => 'huge' },
+                'The',
+                { command => 'TeX' },
+                'nical Institute',
+            ]
+        },
+        '.',
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
