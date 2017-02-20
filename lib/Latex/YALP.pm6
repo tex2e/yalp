@@ -10,14 +10,18 @@ unit module Latex::YALP;
 grammar Latex::Grammer {
     token name { <[ \w _ \- ]>+ }
     token val  { <-[ \, \} \] ]>* }
-    token line { <block> || <command> || <text> }
-    token text { ( <-[\n \\]>+ ) }
+    token line { <block> || <special_command> || <command> || <text> }
+    token text { ( <-[\n \\ \}]>+ ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
         [ '[' <option>* %% ',' ']' ]?
         [ '{' <argument>* %% ',' '}' ]?
         [ <line> \n* ]*?
         '\end{' $<blockname> '}'
+    }
+    token special_command {
+        '\\' $<name>=[ 'text' <[ a .. z ]> ** 2 ] <|w>
+        [ '{' [ <line> \n* ]*? '}' ]?
     }
     rule command {
         '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] ]> ] ]
@@ -58,6 +62,11 @@ class Latex::Action {
     }
     method text($/) {
         make $0.Str.trim;
+    }
+    method special_command($/) {
+        my %node = %{ command => $<name>.Str.trim };
+        %node<contents> = $<line>».ast;
+        make %node;
     }
     method command($/) {
         my %options  = self!convert_kvpair_to_hash($<option>.list);
