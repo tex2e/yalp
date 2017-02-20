@@ -20,6 +20,7 @@ grammar Latex::Grammer {
         [ <line> \n* ]*?
         '\end{' $<blockname> '}'
     }
+    # TODO: this special_command must merge into command
     token special_command {
         '\\' $<name>=[ '\\' ]
         [ '[' <option>* %% ',' ']' ]?
