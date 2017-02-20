@@ -19,13 +19,13 @@ grammar Latex::Grammer {
         [ <line> \n* ]*?
         '\end{' $<blockname> '}'
     }
-    token command {
-        '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] \’ ]> ] ] \s*
+    rule command {
+        '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] \’ ]> ] ]
         [
-            [ '[' <option>* %% [ ',' \s* ] ']' ]? \s*
+            [ '[' <option>* %% [ ',' \s* ] ']' ]?
             '{' <argument>* %% [ ',' \s* ] '}'
-            [ $<option2>=[ <bracket> ] ]?
-            [ $<argument2>=[ <curlybrace> ] ]?
+            [ $<option2>=[ <.bracket> ] ]?
+            [ $<argument2>=[ <.curlybrace> ] ]?
         ]?
     }
     rule option {
@@ -35,10 +35,10 @@ grammar Latex::Grammer {
         $<name>=[ <-[ , \} \= ]>+ ] [ '=' <val> ]?
     }
     rule bracket {
-        '[' [ <-[ \[ \] ]>+ || <bracket> ]+ ']'
+        '[' [ <-[ \[ \] ]>+ || <.bracket> ]+ ']'
     }
     rule curlybrace {
-        '{' [ <-[ \{ \} ]>+ || <curlybrace> ]+ '}'
+        '{' [ <-[ \{ \} ]>+ || <.curlybrace> ]+ '}'
     }
 
     token TOP {
