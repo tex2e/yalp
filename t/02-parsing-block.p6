@@ -5,27 +5,28 @@ use Test;
 use lib './lib';
 use Latex::YALP;
 
-plan 3;
+plan 4;
 
-given 'basic block' {
+given 'Basic block' {
     my $input = q:to/EOS/;
     \begin{document}
         hello, LaTeX.
     \end{document}
     EOS
 
-    my @expected = [];
-    @expected.push: {
-        block => "document",
-        contents => [
-            'hello, LaTeX.'
-        ]
-    }
+    my @expected = [
+        {
+            block => "document",
+            contents => [
+                'hello, LaTeX.'
+            ]
+        },
+    ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
 }
 
-given 'nested block' {
+given 'Nested block' {
     my $input = q:to/EOS/;
     \begin{document}
         \begin{quote}
@@ -36,35 +37,60 @@ given 'nested block' {
 
     my @nested = [];
     @nested.push: {
-        block => "quote",
-        contents => [ 'hello, LaTeX.' ]
+
     }
-    my @expected = [];
-    @expected.push: {
-        block => "document",
-        contents => @nested
-    }
+    my @expected = [
+        {
+            block => "document",
+            contents => [
+                {
+                    block => "quote",
+                    contents => [ 'hello, LaTeX.' ]
+                },
+            ]
+        },
+    ];
+    @expected.push:
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
 }
 
-given 'block with opts' {
+given 'Block with opts' {
     my $input = q:to/EOS/;
     \begin{table}[htbp]
         \centering
     \end{table}
     EOS
 
-    my @nested = [];
-    @nested.push: {
-        command => "centering",
-    }
-    my @expected = [];
-    @expected.push: {
-        block => "table",
-        opts => { "htbp" => "" },
-        contents => @nested
-    }
+    my @expected = [
+        {
+            block => "table",
+            opts => { "htbp" => "" },
+            contents => [
+                { command => "centering" },
+            ]
+        },
+    ];
+
+    is-deeply Latex::YALP.parse($input), @expected, $_;
+}
+
+given 'Block with args' {
+    my $input = q:to/EOS/;
+    \begin{foo}{999}
+        bar
+    \end{foo}
+    EOS
+
+    my @expected = [
+        {
+            block => "foo",
+            args => { "999" => "" },
+            contents => [
+                "bar"
+            ]
+        },
+    ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
 }
