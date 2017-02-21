@@ -8,68 +8,62 @@ use v6;
 unit module Latex::YALP;
 
 grammar Latex::Grammer {
-    token name { <[ \w _ ]>+ \*? }
-    token val  { <-[ \, \} \] ]>* }
-    token line { <comment> || <curlybrace> || <block> || <special_command> || <command> || <text> }
-    token comment { '%' ( <-[ \n ]>* ) }
-    token text { ( <-[ \\ \{ \} \% ]>+ ) }
+    token name         { <[ \w _ ]>+ \*? }
+    token exp          { <comment> || <curlybrace> || <block> || <command> || <text> }
+    token exp_in_opts  { <comment> || <bracket>    || <block> || <command> || <text_in_opts> }
+    token comment      { '%' ( <-[ \n ]>* ) }
+    token text         { ( <-[ \\ \{ \} \% ]>+ ) }
+    token text_in_opts { ( <-[ \\ \[ \] \% ]>+ ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
-        [ '[' <option>* %% ',' ']' ]?
-        [ '{' <argument>* %% ',' '}' ]?
-        [ <line> \n* ]*?
+        [ <bracket> ]?
+        [
+            <curlybrace>
+            [ <bracket> ]?
+            [ <curlybrace> ]?
+        ]?
+        [ <exp> ]*?
         '\end{' $<blockname> '}'
     }
-    # TODO: this special_command must merge into command
-    token special_command {
-        '\\' $<name>=[ '\\' ]
-        [ '[' <option>* %% ',' ']' ]?
-        ||
-        '\\' $<name>=[
-            'text' <[ a .. z ]> ** 2
-            || 'title'
-            || 'author'
-            || 'date'
-            || 'emph'
-            || 'caption'
-        ] <|w>
-        [ '{' [ <line> \n* ]*? '}' ]?
-    }
-    rule command {
-        '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] ]> ] ]
-        [ '[' <option>* %% ',' ']' ]?
+    token command {
+        '\\' [ <name> || $<name>=[ <[ \x[20] .. \x[7e] ]> ] ] <.ws>
+        [ <bracket> <.ws> ]?
         [
-            '{' <argument>* %% ',' '}'
-            [ $<option2>=[ <.bracket> ] ]?
-            [ $<argument2>=[ <.curlybrace> ] ]?
+            <curlybrace> <.ws>
+            [ <bracket> <.ws> ]?
+            [ <curlybrace> <.ws> ]?
         ]?
     }
-    rule option {
-        $<name>=[ <[ \w _ \- 0..9 . ]>+ ] [ '=' <val> ]?
-    }
-    rule argument {
-        $<name>=[ <-[ , \} \= ]>+ ] [ '=' <val> ]?
-    }
+    # token val  { <-[ \, \} \] ]>* }
+    # rule option {
+    #     $<name>=[ <[ \w _ \- 0..9 . ]>+ ] [ '=' <val> ]?
+    # }
+    # rule argument {
+    #     $<name>=[ <-[ , \} \= ]>+ ] [ '=' <val> ]?
+    # }
     rule bracket {
-        '[' [ <-[ \[ \] ]>+ || <.bracket> ]+ ']'
+        '[' <exp_in_opts>* ']'
     }
     rule curlybrace {
-        '{' [ <line>+ || <curlybrace> ]+ '}'
+        '{' <exp>* '}'
     }
 
     token TOP {
         ^
         \n*
-        [ <line> \n* ]*
+        [ <exp> ]*
         $
     }
 }
 
 class Latex::Action {
     method TOP($/) {
-        make $<line>».ast;
+        make $<exp>».ast;
     }
-    method line($/) {
+    method exp($/) {
+        make $/.values[0].ast;
+    }
+    method exp_in_opts($/) {
         make $/.values[0].ast;
     }
     method comment($/) {
@@ -78,56 +72,42 @@ class Latex::Action {
     method text($/) {
         make $0.Str.trim;
     }
-    method special_command($/) {
-        my %options  = self!convert_kvpair_to_hash($<option>.list);
-
-        my %node = %{ command => $<name>.Str.trim };
-        %node<opts> = %options if %options.elems > 0;
-        my @contents = $<line>».ast;
-        %node<contents> = @contents if @contents.elems > 0;
-        make %node;
+    method text_in_opts($/) {
+        make $0.Str.trim;
     }
     method command($/) {
-        my %options  = self!convert_kvpair_to_hash($<option>.list);
-        my %args     = self!convert_kvpair_to_hash($<argument>.list);
+        my @options   = $<bracket>.map({ $_<exp_in_opts> });
+        my @arguments = $<curlybrace>.map({ $_<exp> });
 
         my %node = %{ command => $<name>.Str.trim };
-        %node<opts>  = %options if %options.elems > 0;
-        %node<args>  = %args    if %args.elems > 0;
-        %node<opts2> = $<option2>.trim.substr(1, *-1)   if $<option2>:exists;
-        %node<args2> = $<argument2>.trim.substr(1, *-1) if $<argument2>:exists;
+        %node<opts> = @options».ast   if @options.elems > 0;
+        %node<args> = @arguments».ast if @arguments.elems > 0;
         make %node;
     }
     method block($/) {
-        my %options = self!convert_kvpair_to_hash($<option>.list);
-        my %args    = self!convert_kvpair_to_hash($<argument>.list);
+        my @options   = $<bracket>.map({ $_<exp_in_opts> });
+        my @arguments = $<curlybrace>.map({ $_<exp> });
 
         my %node = %{ block => $<name>.Str.trim };
-        %node<opts> = %options if %options.elems > 0;
-        %node<args> = %args    if %args.elems > 0;
-        %node<contents> = $<line>».ast;
+        # %node<opts> = $<bracket><exp_in_opts>».ast if $<bracket>:exists;
+        # %node<args> = $<curlybrace><exp>».ast      if $<curlybrace>:exists;
+        %node<opts> = @options».ast   if @options.elems > 0;
+        %node<args> = @arguments».ast if @arguments.elems > 0;
+        %node<contents> = $<exp>».ast;
         make %node;
     }
-    method curlybrace($/) {
-        make {
-            contents => $/.values.Array».ast
-        };
+    method bracket($/) {
+        make { contents => $/.values.Array».ast };
     }
-
-    method !convert_kvpair_to_hash(@kvlist) {
-        my %hash = %{};
-        for @kvlist {
-            my $key = $_<name>:exists ?? $_<name>.Str.trim !! "";
-            my $val = $_<val>:exists  ?? $_<val>.Str.trim  !! "";
-            %hash.push: ( $key => $val );
-        }
-        %hash;
+    method curlybrace($/) {
+        make { contents => $/.values.Array».ast };
     }
 }
 
 class Latex::YALP {
     method parse($contents) {
         my $actions = Latex::Action;
-        Latex::Grammer.parse($contents, :$actions).made;
+        my $json = Latex::Grammer.parse($contents, :$actions);
+        return ($json and $json.made);
     }
 }
