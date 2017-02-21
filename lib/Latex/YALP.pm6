@@ -9,11 +9,11 @@ unit module Latex::YALP;
 
 grammar Latex::Grammer {
     token name         { <[ \w _ ]>+ \*? }
-    token exp          { <.comment> || <curlybrace> || <block> || <command> || <text> }
-    token exp_in_opts  { <.comment> || <bracket>    || <block> || <command> || <text_in_opts> }
+    token exp          { <.comment> || <curlybrace> || <block> || <command> || <math> || <text> }
+    token exp_in_opts  { <.comment> || <bracket>    || <block> || <command> || <math> || <text_in_opts> }
     token comment      { '%' ( <-[ \n ]>* ) }
-    token text         { ( <-[ \\ \{ \} \% ]>+ ) }
-    token text_in_opts { ( <-[ \\ \[ \] \% ]>+ ) }
+    token text         { ( <-[ \\ \{ \} \% \$ ]>+ ) }
+    token text_in_opts { ( <-[ \\ \[ \] \% \$ ]>+ ) }
     rule block {
         '\begin{' $<blockname>=[<name>] '}'
         [ <bracket> ]?
@@ -34,13 +34,11 @@ grammar Latex::Grammer {
             [ <curlybrace> <.ws> ]?
         ]?
     }
-    # token val  { <-[ \, \} \] ]>* }
-    # rule option {
-    #     $<name>=[ <[ \w _ \- 0..9 . ]>+ ] [ '=' <val> ]?
-    # }
-    # rule argument {
-    #     $<name>=[ <-[ , \} \= ]>+ ] [ '=' <val> ]?
-    # }
+    rule math {
+        '$' ( <-[ $ ]>+ ) '$'
+        ||
+        '$$' ( <-[ $ ]>+ ) '$$'
+    }
     rule bracket {
         '[' <exp_in_opts>* ']'
     }
@@ -67,7 +65,10 @@ class Latex::Action {
         make $/.values[0].ast;
     }
     method comment($/) {
-        make { comment => $0.Str };
+        make { comment => $0.trim };
+    }
+    method math($/) {
+        make { math => $0.trim }
     }
     method text($/) {
         make $0.Str.trim;
