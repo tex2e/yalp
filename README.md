@@ -68,43 +68,51 @@ sample.tex
 [
   {
     "command": "documentclass",
-    "args": {
-      "jsarticle": ""
-    },
-    "opts": {
-      "titlepage": "",
-      "a4j": "",
-      "10pt": ""
-    }
+    "args": [
+      [
+        "jsarticle"
+      ]
+    ],
+    "opts": [
+      [
+        "a4j, titlepage, 10pt"
+      ]
+    ]
   },
   {
     "command": "lstset",
-    "args": {
-      "language": "c",
-      "numbers": "left"
-    }
+    "args": [
+      [
+        "language = c, numbers = left"
+      ]
+    ]
   },
   {
     "block": "foo",
     "contents": [
       {
         "block": "bar",
-        "opts": {
-          "htbp": ""
-        },
+        "opts": [
+          [
+            "htbp"
+          ]
+        ],
         "contents": [
           "nested block test"
         ]
       },
       {
         "command": "lstinputlisting",
-        "args": {
-          "../src/kadai2-3.c": ""
-        },
-        "opts": {
-          "label": "code:kadai2-3",
-          "caption": "Listing Caption"
-        }
+        "args": [
+          [
+            "../src/kadai2-3.c"
+          ]
+        ],
+        "opts": [
+          [
+            "caption = Listing Caption, label = code:kadai2-3"
+          ]
+        ]
       },
       {
         "command": "clearpage"
