@@ -65,7 +65,7 @@ given 'Block with opts' {
     my @expected = [
         {
             block => "table",
-            opts => { "htbp" => "" },
+            opts => [ ["htbp"], ],
             contents => [
                 { command => "centering" },
             ]
@@ -85,7 +85,7 @@ given 'Block with args' {
     my @expected = [
         {
             block => "foo",
-            args => { "999" => "" },
+            args => [ ["999"], ],
             contents => [
                 "bar"
             ]

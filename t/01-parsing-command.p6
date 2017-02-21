@@ -15,20 +15,24 @@ given 'basic command' {
     my @expected = [
         {
             command => "documentclass",
-            args => { jsarticle => "" },
+            args => [
+                [ 'jsarticle' ],
+            ]
         },
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
 }
 
-given 'command without {}' {
+given 'command without args' {
     my $input = q:to/EOS/;
     \clearpage
+    \clearpage{}
     EOS
 
     my @expected = [
         { command => "clearpage" },
+        { command => "clearpage", args => [ [], ] },
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
@@ -42,14 +46,14 @@ given 'command with many args' {
     my @expected = [
         {
             command => "usepackage",
-            args => { amsmath => "", amssymb => "", graphicx => "" },
+            args => [ ["amsmath, amssymb, graphicx"], ],
         },
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
 }
 
-given 'command with many args, key-value pairs' {
+given 'command with args, key-value pairs' {
     my $input = q:to/EOS/;
     \lstset{
         language = c, numbers = left, breaklines = true
@@ -59,7 +63,7 @@ given 'command with many args, key-value pairs' {
     my @expected = [
         {
             command => "lstset",
-            args => { language => "c", numbers => "left", breaklines => "true" },
+            args => [ ["language = c, numbers = left, breaklines = true"], ]
         },
     ];
 
@@ -76,8 +80,8 @@ given 'command with opts and args' {
     my @expected = [
         {
             command => "special_command",
-            args => { args1 => "./img/image.png", args2 => ""},
-            opts => { prop1 => "", prop2 => "10cm", prop3 => "true" }
+            opts => [ ["prop1, prop2 = 10cm, prop3 = true"], ],
+            args => [ ["args1 = ./img/image.png, args2"], ],
         },
     ];
 
@@ -94,8 +98,8 @@ given 'command with opts2 and args2' {
     my @expected = [
         {
             command => "special_command",
-            args2 => "hello, world! from args2",
-            opts2 => "hello, world! from opts2"
+            args => [ [], ["hello, world! from args2"] ],
+            opts => [ [], ["hello, world! from opts2"] ],
         },
     ];
 
@@ -109,7 +113,7 @@ given 'command in text' {
 
     my @expected = [
         "Fig.",
-        { command => "ref", args => { "fig:test-result" => "" } },
+        { command => "ref", args => [ ["fig:test-result"], ] },
         "indicates...",
     ];
 
