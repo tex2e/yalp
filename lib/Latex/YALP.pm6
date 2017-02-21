@@ -9,8 +9,8 @@ unit module Latex::YALP;
 
 grammar Latex::Grammer {
     token name         { <[ \w _ ]>+ \*? }
-    token exp          { <comment> || <curlybrace> || <block> || <command> || <text> }
-    token exp_in_opts  { <comment> || <bracket>    || <block> || <command> || <text_in_opts> }
+    token exp          { <.comment> || <curlybrace> || <block> || <command> || <text> }
+    token exp_in_opts  { <.comment> || <bracket>    || <block> || <command> || <text_in_opts> }
     token comment      { '%' ( <-[ \n ]>* ) }
     token text         { ( <-[ \\ \{ \} \% ]>+ ) }
     token text_in_opts { ( <-[ \\ \[ \] \% ]>+ ) }
@@ -89,8 +89,6 @@ class Latex::Action {
         my @arguments = $<curlybrace>.map({ $_<exp> });
 
         my %node = %{ block => $<name>.Str.trim };
-        # %node<opts> = $<bracket><exp_in_opts>».ast if $<bracket>:exists;
-        # %node<args> = $<curlybrace><exp>».ast      if $<curlybrace>:exists;
         %node<opts> = @options».ast   if @options.elems > 0;
         %node<args> = @arguments».ast if @arguments.elems > 0;
         %node<contents> = $<exp>».ast;
