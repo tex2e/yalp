@@ -15,8 +15,8 @@ given '\documentclass' {
     my @expected = [
         {
             command => "documentclass",
-            args => { 'jsarticle' => "" },
-            opts => { 'a4j' => "", 'titlepage' => "", '10pt' => "" }
+            args => [ ['jsarticle'], ],
+            opts => [ ['a4j, titlepage, 10pt'], ]
         },
     ];
 
@@ -31,13 +31,8 @@ given '\usepackage' {
     my @expected = [
         {
             command => "usepackage",
-            args => { 'geometry' => "" },
-            opts => {
-                'top' => "30truemm",
-                'bottom' => "30truemm",
-                'left' => "25truemm",
-                'right' => "25truemm"
-            }
+            args => [ ['geometry'], ],
+            opts => [ ['top=30truemm, bottom=30truemm, left=25truemm, right=25truemm'], ],
         },
     ];
 
@@ -52,9 +47,15 @@ given '\newcommand' {
     my @expected = [
         {
             command => "newcommand",
-            args => { '\code' => "" },
-            opts2 => '1',
-            args2 => '\texttt{#1}'
+            args => [
+                [
+                    { command => 'code' },
+                ],
+                [
+                    { command => 'texttt', args => [ ["#1"], ] },
+                ],
+            ],
+            opts => [ ['1'], ]
         },
     ];
 
@@ -69,8 +70,14 @@ given '\renewcommand' {
     my @expected = [
         {
             command => "renewcommand",
-            args => { '\lstlistingname' => "" },
-            args2 => 'リスト'
+            args => [
+                [
+                    { command => 'lstlistingname' },
+                ],
+                [
+                    "リスト"
+                ],
+            ],
         },
     ];
 
@@ -87,37 +94,19 @@ given '\lstset' {
       numbersep = 10pt,
       breaklines = false,
       breakindent = 20pt,
-      frame = tRBl,
-      framesep = 5pt,
-      basicstyle = \ttfamily\small,
-      commentstyle = \textit,
-      keywordstyle = \bfseries,
-      classoffset = 1,
-      showstringspaces = false,
-      tabsize = 2
     }
     EOS
 
     my @expected = [
         {
             command => "lstset",
-            args => {
-                'language' => 'c',
-                'numbers' => 'left',
-                'stepnumber' => '1',
-                'numberstyle' => '\footnotesize',
-                'numbersep' => '10pt',
-                'breaklines' => 'false',
-                'breakindent' => '20pt',
-                'frame' => 'tRBl',
-                'framesep' => '5pt',
-                'basicstyle' => '\ttfamily\small',
-                'commentstyle' => '\textit',
-                'keywordstyle' => '\bfseries',
-                'classoffset' => '1',
-                'showstringspaces' => 'false',
-                'tabsize' => '2'
-            }
+            args => [
+                [
+                    "language = c,\n  numbers = left,\n  stepnumber = 1,\n  numberstyle =",
+                    { command => 'footnotesize' },
+                    ",\n  numbersep = 10pt,\n  breaklines = false,\n  breakindent = 20pt,"
+                ],
+            ],
         },
     ];
 

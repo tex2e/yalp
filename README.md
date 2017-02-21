@@ -20,21 +20,23 @@ and we finally use it to test for checking documentation quality written in Late
 `\ { }`, these characters have special meaning.
 
 ~~~
-ROOT         ::= <exp>*
-<exp>        ::= <comment> | <curlybrace> | <block> | <command> | <math> | <text>
-<comment>    ::= % [^\n]*
-<curlybrace> ::= { <exp>* }
-<block>      ::= \\begin{ <blockname> } [ <opts> ] <curlybrace>
-                 <exp>*
-                 \\end{ $<blockname> }
-<command>    ::= \\ <name> \*? ( [ <opts> ] <curlybrace> )*
-<name>       ::= [\w_]+ \*?
-<opts>       ::= ( <key> ( = <val> )? , )+
-<math>       ::= $ [^$]+ $
-               | $$ [^$]+ $$
-               | \( ~ \)
-               | \begin{math} ~ \end{math}
-<text>       ::= [^\\{}$]+
+ROOT          ::= <exp>*
+<exp>         ::= <comment> | <curlybrace> | <block> | <command> | <math> | <text>
+<exp_in_opts> ::= <comment> | <brace>      | <block> | <command> | <math> | <text_in_opts>
+<comment>     ::= % [^\n]*
+<curlybrace>  ::= { <exp>* }
+<bracket>     ::= [ <exp_in_opts>* ]
+<block>       ::= \\begin{ <blockname> } <bracket> <curlybrace>
+                  <exp>*
+                  \\end{ $<blockname> }
+<command>     ::= \\ <name> \*? <bracket> <curlybrace>
+<name>        ::= [\w_]+ \*?
+<math>        ::= $ [^$]+ $
+                | $$ [^$]+ $$
+                | \( ~ \)
+                | \begin{math} ~ \end{math}
+<text>        ::= [^\\\{\}$]+
+<text_in_opts>::= [^\\\[\]$]+
 ~~~
 
 

@@ -15,7 +15,7 @@ given 'Mixed text and command' {
 
     my @expected = [
         "This is my",
-        { command => "emph", contents => [ 'first' ] },
+        { command => "emph", args => [ ['first'], ] },
         "document prepared in",
         { command => "LaTeX" },
         ". I typed it\non",
@@ -47,11 +47,11 @@ given 'Accents' {
     EOS
 
     my @expected = [
-        { command => "'", args => { 'E' => '' } },
+        { command => "'", args => [ ['E'], ] },
         "l est",
-        { command => "'", args => { 'a' => '' } },
+        { command => "'", args => [ ['a'], ] },
         "aqu",
-        { command => "'", args => { '\i' => '' } }
+        { command => "'", args => [ [ { command => 'i' }, ], ] },
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
@@ -95,7 +95,7 @@ given 'Break lines' {
 
     my @expected = [
         'This is the first line.',
-        { command => '\\', opts => { '10pt' => '' } },
+        { command => '\\', opts => [ ['10pt'], ] },
         'This is the second line'
     ];
 
@@ -117,7 +117,7 @@ given 'Text positioning' {
                 'The',
                 { command => 'TeX' },
                 'nical Institute',
-                { command => '\\', opts => { '.75cm' => '' } },
+                { command => '\\', opts => [ ['.75cm'], ] },
                 'Certificate',
             ],
         },
@@ -135,13 +135,17 @@ given 'Font' {
         'This is',
         {
             command => 'textsf',
-            contents => [
-                {
-                    command => 'textbf',
-                    contents => [
-                        'sans serif family, boldface series, upright shape'
-                    ]
-                },
+            args => [
+                [
+                    {
+                        command => 'textbf',
+                        args => [
+                            [
+                                'sans serif family, boldface series, upright shape'
+                            ],
+                        ],
+                    },
+                ],
             ]
         },
         '.'

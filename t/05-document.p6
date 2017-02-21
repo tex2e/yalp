@@ -15,22 +15,26 @@ given '\title' {
     my @expected = [
         {
             command => 'title',
-            contents => [
-                {
-                    contents => [
-                        { command => 'Huge' },
-                        'Main Title',
-                    ]
-                },
-                '~',
-                { command => '\\' },
-                {
-                    contents => [
-                        { command => 'LARGE' },
-                        'Sub Title',
-                    ]
-                }
-            ]
+            args => [
+                [
+                    {
+                        contents => [
+                            { command => 'Huge' },
+                            'Main Title',
+                        ]
+                    },
+                    '~',
+                    {
+                        command => '\\',
+                        args => [
+                            [
+                                { command => 'LARGE' },
+                                'Sub Title',
+                            ],
+                        ],
+                    },
+                ],
+            ],
         },
     ];
 
@@ -45,14 +49,16 @@ given '\author' {
     my @expected = [
         {
             command => 'author',
-            contents => [
-                {
-                    contents => [
-                        { command => 'Large' },
-                        'Mako',
-                    ]
-                },
-            ]
+            args => [
+                [
+                    {
+                        contents => [
+                            { command => 'Large' },
+                            'Mako',
+                        ],
+                    },
+                ],
+            ],
         },
     ];
 
@@ -74,19 +80,21 @@ given '\author with 2 authors' {
     my @expected = [
         {
             command => 'author',
-            contents => [
-                'Author 1',
-                { command => '\\' },
-                'Address line 11',
-                { command => '\\' },
-                'Address line 12',
-                { command => 'and' },
-                'Author 2',
-                { command => '\\' },
-                'Address line 21',
-                { command => '\\' },
-                'Address line 22',
-            ]
+            args => [
+                [
+                    'Author 1',
+                    { command => '\\' },
+                    'Address line 11',
+                    { command => '\\' },
+                    'Address line 12',
+                    { command => 'and' },
+                    'Author 2',
+                    { command => '\\' },
+                    'Address line 21',
+                    { command => '\\' },
+                    'Address line 22',
+                ],
+            ],
         },
     ];
 
@@ -101,9 +109,11 @@ given '\date' {
     my @expected = [
         {
             command => 'date',
-            contents => [
-                { command => 'today' },
-            ]
+            args => [
+                [
+                    { command => 'today' },
+                ],
+            ],
         },
     ];
 
@@ -116,7 +126,7 @@ given '\section* -- produces no number' {
     EOS
 
     my @expected = [
-        { command => 'section*', args => { 'Preface' => '' } },
+        { command => 'section*', args => [ ['Preface'], ] },
     ];
 
     is-deeply Latex::YALP.parse($input), @expected, $_;
