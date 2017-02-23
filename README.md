@@ -31,10 +31,7 @@ ROOT          ::= <exp>*
                   \\end{ $<blockname> }
 <command>     ::= \\ <name> \*? <bracket> <curlybrace>
 <name>        ::= [\w_]+ \*?
-<math>        ::= $ [^$]+ $
-                | $$ [^$]+ $$
-                | \( ~ \)
-                | \begin{math} ~ \end{math}
+<math>        ::= $ [^$]+ $ | $$ [^$]+ $$
 <text>        ::= [^\\\{\}$]+
 <text_in_opts>::= [^\\\[\]$]+
 ~~~

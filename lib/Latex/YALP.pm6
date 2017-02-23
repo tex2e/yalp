@@ -9,8 +9,8 @@ unit module Latex::YALP;
 
 grammar Latex::Grammer {
     token name         { <[ \w _ ]>+ \*? }
-    token exp          { <.comment> || <curlybrace> || <block> || <math> || <command> || <text> }
-    token exp_in_opts  { <.comment> || <bracket>    || <block> || <math> || <command> || <text_in_opts> }
+    token exp          { <.comment> || <curlybrace> || <block> || <command> || <math> || <text> }
+    token exp_in_opts  { <.comment> || <bracket>    || <block> || <command> || <math> || <text_in_opts> }
     token comment      { '%' ( <-[ \n ]>* ) }
     token text         { ( <-[ \\ \{ \} \% \$ ]>+ ) }
     token text_in_opts { ( <-[ \\ \[ \] \% \$ ]>+ ) }
@@ -38,8 +38,6 @@ grammar Latex::Grammer {
         '$' ( <-[ $ ]>+ ) '$'
         ||
         '$$' ( <-[ $ ]>+ ) '$$'
-        ||
-        '\(' ( [ <-[ \\ ]>+ || \\<-[ ) ]> ]+ ) '\)'
     }
     rule bracket {
         '[' <exp_in_opts>* ']'
@@ -82,7 +80,7 @@ class Latex::Action {
         my @options   = $<bracket>.map({ $_<exp_in_opts> });
         my @arguments = $<curlybrace>.map({ $_<exp> });
 
-        my %node = %{ command => $<name>.Str.trim };
+        my %node = %{ command => $<name>.Str };
         %node<opts> = @options».ast   if @options.elems > 0;
         %node<args> = @arguments».ast if @arguments.elems > 0;
         make %node;
