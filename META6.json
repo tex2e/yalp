@@ -1,0 +1,11 @@
+{
+    "name"          : "yalp",
+    "api"           : "0",
+    "version"       : "1.0",
+    "auth"          : "Mako, github:tex2e",
+    "description"   : "Yet Another Latex Parser",
+    "license"       : "MIT",
+    "provides"      : {
+        "Latex::YALP"   : "lib/Latex/YALP.pm6"
+    }
+}
